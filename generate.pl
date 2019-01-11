@@ -13,5 +13,5 @@ for(my $i = 0; $i < $size; $i++)
     my $addr = sprintf("%08x", 4*int(rand(255)));
     my $data = sprintf("%08x", int(rand(0xFFFFFFFF)));
 
-    print "$clk : write 0x$addr 0x$data\n";
+    print "$clk: write 0x$addr 0x$data\n";
 }
