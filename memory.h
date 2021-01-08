@@ -1,10 +1,10 @@
-#ifndef DRAM_H
-#define DRAM_H
+#ifndef MEMORY_H
+#define MEMORY_H
 
-#include <systemc.h>
 #include <iostream>
 #include <tlm.h>
+#include <systemc.h>
 
-// TODO add your code here
+// TODO: add your code here
 
-#endif // DRAM_H
+#endif // MEMORY_H

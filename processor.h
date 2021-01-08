@@ -1,6 +1,5 @@
-/* vim: set tabstop=4 shiftwidth=4: */
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef PROCESSOR_H
+#define PROCESSOR_H
 
 #include <string>
 #include <iostream>
@@ -22,7 +21,6 @@ private:
 	void process();
 
 public:
-
 	tlm::tlm_initiator_socket<> iSocket;
 
 	processor(sc_module_name, std::string pathToTrace, sc_time cycleTime);
@@ -33,7 +31,7 @@ public:
 	void invalidate_direct_mem_ptr(sc_dt::uint64 start_range,
 			sc_dt::uint64 end_range)
 	{
-		SC_REPORT_FATAL(this->name(),"invalidate_direct_mem_ptr not implement");
+		SC_REPORT_FATAL(this->name(), "invalidate_direct_mem_ptr not implement");
 	}
 
 	// Dummy method:
@@ -42,10 +40,11 @@ public:
 			tlm::tlm_phase& phase,
 			sc_time& delay)
 	{
-		SC_REPORT_FATAL(this->name(),"nb_transport_bw is not implemented");
+		SC_REPORT_FATAL(this->name(), "nb_transport_bw is not implemented");
 		return tlm::TLM_ACCEPTED;
 	}
 };
+
 processor::processor(sc_module_name,
 		std::string pathToFile,
 		sc_time cycleTime) :
@@ -75,7 +74,7 @@ void processor::process()
 	unsigned char data[4];
 	bool read = true;
 
-	while(std::getline(file,line))
+	while(std::getline(file, line))
 	{
 #ifdef GCC_LESS_THAN_4_9_DOES_NOT_SUPPORT_REGEX
 		// Available GCC is too old and it does not have support to regular
@@ -139,7 +138,7 @@ void processor::process()
 			dataStr = matchW.str(3);
 			for(int i = 0; i < 4; i++)
 			{
-				data[i] = (unsigned char) std::stoi(dataStr.substr(i*2,2),
+				data[i] = (unsigned char) std::stoi(dataStr.substr(i * 2, 2),
 						nullptr,
 						16);
 			}
@@ -159,7 +158,7 @@ void processor::process()
 
 		sc_time delay;
 
-		if(sc_time_stamp() <= cycles * cycleTime)
+		if (sc_time_stamp() <= cycles * cycleTime)
 		{
 			delay = cycles * cycleTime - sc_time_stamp();
 		}
@@ -170,7 +169,7 @@ void processor::process()
 
 		trans.set_address(address);
 		trans.set_data_length(4);
-		trans.set_command(read?tlm::TLM_READ_COMMAND:tlm::TLM_WRITE_COMMAND);
+		trans.set_command(read ? tlm::TLM_READ_COMMAND : tlm::TLM_WRITE_COMMAND);
 		trans.set_data_ptr(data);
 		iSocket->b_transport(trans, delay);
 
@@ -201,4 +200,4 @@ void processor::process()
 	// End Simulation because there are no events.
 }
 
-#endif // UTILS_H
+#endif // PROCESSOR_H
