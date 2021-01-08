@@ -1,11 +1,11 @@
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef BUS_H
+#define BUS_H
 
 #include <iostream>
-#include <tlm.h>
 #include <systemc.h>
+#include <tlm.h>
 
 
 // TODO: add your code here
 
-#endif // MEMORY_H
+#endif // BUS_H

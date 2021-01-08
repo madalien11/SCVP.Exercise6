@@ -4,6 +4,8 @@
 
 #include "memory.h"
 #include "processor.h"
+#include "bus.h"
+
 
 int sc_main (int, char **)
 {

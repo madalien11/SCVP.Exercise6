@@ -6,7 +6,6 @@
 #include <regex>
 #include <string>
 #include <iomanip>
-
 #include <systemc.h>
 #include <tlm.h>
 

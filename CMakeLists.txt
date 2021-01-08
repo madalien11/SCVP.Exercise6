@@ -6,6 +6,7 @@ add_executable(exercise6
     main.cpp
     memory.h
     processor.h
+    bus.h
     
     stimuli1.txt
     stimuli2.txt
