@@ -66,8 +66,8 @@ void processor::processTrace()
 
     std::string line;
 	tlm::tlm_generic_payload trans;
-	unsigned long long cycles = 0;
-	unsigned long long address = 0;
+	uint64_t cycles = 0;
+	uint64_t address = 0;
 	std::string dataStr;
 	unsigned char data[4];
 	bool read = true;
@@ -203,20 +203,20 @@ void processor::processRandom()
     wait(SC_ZERO_TIME);
 
     tlm::tlm_generic_payload trans;
-    std::string dataStr;
-    unsigned char data[4];
-    data[0] = 0;
-    data[1] = 0;
-    data[2] = 0;
-    data[3] = 0;
 
     uint64_t cycles;
-    uint64_t address = 0;
+    uint64_t address;
+    unsigned char data[4];
 
     std::default_random_engine randGenerator;
     std::uniform_int_distribution<uint64_t> distrCycle(0, 99);
     std::uniform_int_distribution<uint64_t> distrAddr(0, 1023);
 
+    data[0] = 0;
+    data[1] = 0;
+    data[2] = 0;
+    data[3] = 0;
+    
     trans.set_data_length(4);
     trans.set_command(tlm::TLM_WRITE_COMMAND);
     trans.set_data_ptr(data);
