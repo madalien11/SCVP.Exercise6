@@ -1,15 +1,17 @@
-#include <systemc>
 #include <iostream>
 #include <iomanip>
+#include <systemc.h>
+
 #include "memory.h"
 #include "processor.h"
+#include "bus.h"
 
-int sc_main (int __attribute__((unused)) sc_argc,
-             char __attribute__((unused)) *sc_argv[])
+
+int sc_main (int, char **)
 {
-    processor cpu0("cpu0","stimuli1.txt", sc_time(1,SC_NS));
+    processor cpu0("cpu0", "stimuli1.txt", sc_time(1, SC_NS));
 
-    // TODO ADD YOUR CODE HERE:
+    // TODO: add your code here
 
     std::cout << std::endl << "Name "
               << std::setfill(' ') << std::setw(10)

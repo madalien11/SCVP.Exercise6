@@ -1,15 +1,16 @@
-/* vim: set tabstop=4 shiftwidth=4: */
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef PROCESSOR_H
+#define PROCESSOR_H
 
 #include <string>
 #include <iostream>
 #include <regex>
 #include <string>
 #include <iomanip>
+#include <random>
 
 #include <systemc.h>
 #include <tlm.h>
+#include <tlm_utils/tlm_quantumkeeper.h>
 
 
 class processor : public sc_module, tlm::tlm_bw_transport_if<>
@@ -19,10 +20,10 @@ private:
 	sc_time cycleTime;
 
 	// Method:
-	void process();
+    void processTrace();
+    void processRandom();
 
 public:
-
 	tlm::tlm_initiator_socket<> iSocket;
 
 	processor(sc_module_name, std::string pathToTrace, sc_time cycleTime);
@@ -30,31 +31,26 @@ public:
 	SC_HAS_PROCESS(processor);
 
 	// Dummy method:
-	void invalidate_direct_mem_ptr(sc_dt::uint64 start_range,
-			sc_dt::uint64 end_range)
+    void invalidate_direct_mem_ptr(sc_dt::uint64, sc_dt::uint64)
 	{
-		SC_REPORT_FATAL(this->name(),"invalidate_direct_mem_ptr not implement");
+		SC_REPORT_FATAL(this->name(), "invalidate_direct_mem_ptr not implement");
 	}
 
 	// Dummy method:
-	tlm::tlm_sync_enum nb_transport_bw(
-			tlm::tlm_generic_payload& trans,
-			tlm::tlm_phase& phase,
-			sc_time& delay)
+    tlm::tlm_sync_enum nb_transport_bw(tlm::tlm_generic_payload &,tlm::tlm_phase &, sc_time &)
 	{
-		SC_REPORT_FATAL(this->name(),"nb_transport_bw is not implemented");
+		SC_REPORT_FATAL(this->name(), "nb_transport_bw is not implemented");
 		return tlm::TLM_ACCEPTED;
 	}
 };
-processor::processor(sc_module_name,
-		std::string pathToFile,
-		sc_time cycleTime) :
+
+processor::processor(sc_module_name, std::string pathToFile, sc_time cycleTime) :
 	file(pathToFile), cycleTime(cycleTime)
 {
 	if (!file.is_open())
 		SC_REPORT_FATAL(name(), "Could not open trace");
 
-	SC_THREAD(process);
+    SC_THREAD(processTrace);
 
 	iSocket.bind(*this);
 }
@@ -64,18 +60,19 @@ processor::processor(sc_module_name,
 // If it is less than 4.9 uncomment the definition that follows.
 // #define GCC_LESS_THAN_4_9_DOES_NOT_SUPPORT_REGEX
 
-void processor::process()
+void processor::processTrace()
 {
 	wait(SC_ZERO_TIME);
-	std::string line;
+
+    std::string line;
 	tlm::tlm_generic_payload trans;
-	unsigned long long cycles = 0;
-	unsigned long long address = 0;
+	uint64_t cycles = 0;
+	uint64_t address = 0;
 	std::string dataStr;
 	unsigned char data[4];
 	bool read = true;
 
-	while(std::getline(file,line))
+    while (std::getline(file, line))
 	{
 #ifdef GCC_LESS_THAN_4_9_DOES_NOT_SUPPORT_REGEX
 		// Available GCC is too old and it does not have support to regular
@@ -139,7 +136,7 @@ void processor::process()
 			dataStr = matchW.str(3);
 			for(int i = 0; i < 4; i++)
 			{
-				data[i] = (unsigned char) std::stoi(dataStr.substr(i*2,2),
+				data[i] = (unsigned char) std::stoi(dataStr.substr(i * 2, 2),
 						nullptr,
 						16);
 			}
@@ -159,18 +156,18 @@ void processor::process()
 
 		sc_time delay;
 
-		if(sc_time_stamp() <= cycles * cycleTime)
+		if (sc_time_stamp() <= cycles * cycleTime)
 		{
 			delay = cycles * cycleTime - sc_time_stamp();
 		}
 		else
 		{
-			delay = sc_time(0, SC_NS);
+            delay = SC_ZERO_TIME;
 		}
 
 		trans.set_address(address);
 		trans.set_data_length(4);
-		trans.set_command(read?tlm::TLM_READ_COMMAND:tlm::TLM_WRITE_COMMAND);
+		trans.set_command(read ? tlm::TLM_READ_COMMAND : tlm::TLM_WRITE_COMMAND);
 		trans.set_data_ptr(data);
 		iSocket->b_transport(trans, delay);
 
@@ -201,4 +198,52 @@ void processor::process()
 	// End Simulation because there are no events.
 }
 
-#endif // UTILS_H
+void processor::processRandom()
+{
+    wait(SC_ZERO_TIME);
+
+    tlm::tlm_generic_payload trans;
+
+    uint64_t cycles;
+    uint64_t address;
+    unsigned char data[4];
+
+    std::default_random_engine randGenerator;
+    std::uniform_int_distribution<uint64_t> distrCycle(0, 99);
+    std::uniform_int_distribution<uint64_t> distrAddr(0, 1023);
+
+    data[0] = 0;
+    data[1] = 0;
+    data[2] = 0;
+    data[3] = 0;
+    
+    trans.set_data_length(4);
+    trans.set_command(tlm::TLM_WRITE_COMMAND);
+    trans.set_data_ptr(data);
+
+    for (uint64_t transId = 0; transId < 100000000; transId++)
+    {
+        cycles = distrCycle(randGenerator);
+        address = distrAddr(randGenerator);
+
+        sc_time delay;
+
+        if (sc_time_stamp() <= cycles * cycleTime)
+        {
+            delay = cycles * cycleTime - sc_time_stamp();
+        }
+        else
+        {
+            delay = SC_ZERO_TIME;
+        }
+
+        trans.set_address(address);
+        iSocket->b_transport(trans, delay);
+
+        wait(delay);
+    }
+
+    // End Simulation because there are no events.
+}
+
+#endif // PROCESSOR_H
