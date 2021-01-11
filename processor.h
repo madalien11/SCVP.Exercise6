@@ -224,7 +224,7 @@ void processor::processRandom()
     for (uint64_t transId = 0; transId < 100000000; transId++)
     {
         cycles = distrCycle(randGenerator);
-        address = distrCycle(randGenerator);
+        address = distrAddr(randGenerator);
 
         sc_time delay;
 
