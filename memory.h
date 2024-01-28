@@ -20,7 +20,7 @@ class memory : sc_module, tlm::tlm_fw_transport_if<> {
     }
 
     void b_transport(tlm::tlm_generic_payload &trans, sc_time &delay) {
-        if (trans.get_address() >= 1024) {
+        if (trans.get_address() >= size) {
             SC_REPORT_FATAL(this->name(),"Out of Range");
         }
 
