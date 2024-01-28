@@ -10,6 +10,9 @@
 int sc_main (int, char **)
 {
     processor cpu0("cpu0", "stimuli1.txt", sc_time(1, SC_NS));
+    memory<1024> memory0("memory0");
+
+    cpu0.iSocket.bind(memory0.tSocket);
 
     // TODO: add your code here
 
