@@ -22,19 +22,19 @@ int sc_main (int, char **)
 
     // TODO: add your code here
 
-    std::cout << std::endl << "Name "
-              << std::setfill(' ') << std::setw(10)
-              << "Time" << " "
-              << std::setfill(' ') << std::setw(5)
-              << "CMD" << "   "
-              << std::setfill(' ') << std::setw(8)
-              << "Address"
-              << "   " << std::hex
-              << std::setfill(' ') << std::setw(8)
-              << "Data"
-              << " " << std::endl
-              << "-------------------------------------------"
-              << std::endl;
+    // std::cout << std::endl << "Name "
+    //           << std::setfill(' ') << std::setw(10)
+    //           << "Time" << " "
+    //           << std::setfill(' ') << std::setw(5)
+    //           << "CMD" << "   "
+    //           << std::setfill(' ') << std::setw(8)
+    //           << "Address"
+    //           << "   " << std::hex
+    //           << std::setfill(' ') << std::setw(8)
+    //           << "Data"
+    //           << " " << std::endl
+    //           << "-------------------------------------------"
+    //           << std::endl;
 
     sc_start();
 

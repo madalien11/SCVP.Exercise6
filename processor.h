@@ -18,6 +18,7 @@ class processor : public sc_module, tlm::tlm_bw_transport_if<>
 private:
 	std::ifstream file;
 	sc_time cycleTime;
+	tlm_utils::tlm_quantumkeeper quantumKeeper;
 
 	// Method:
     void processTrace();
@@ -50,9 +51,11 @@ processor::processor(sc_module_name, std::string pathToFile, sc_time cycleTime) 
 	if (!file.is_open())
 		SC_REPORT_FATAL(name(), "Could not open trace");
 
-    SC_THREAD(processTrace);
+    SC_THREAD(processRandom);
 
 	iSocket.bind(*this);
+	quantumKeeper.set_global_quantum(sc_time(100000,SC_NS)); // STATIC!
+    quantumKeeper.reset();
 }
 
 // Use the command below in a termial to get your gcc version.
@@ -226,21 +229,17 @@ void processor::processRandom()
         cycles = distrCycle(randGenerator);
         address = distrAddr(randGenerator);
 
-        sc_time delay;
-
-        if (sc_time_stamp() <= cycles * cycleTime)
-        {
-            delay = cycles * cycleTime - sc_time_stamp();
-        }
-        else
-        {
-            delay = SC_ZERO_TIME;
-        }
-
+        sc_time delay = quantumKeeper.get_local_time();
         trans.set_address(address);
         iSocket->b_transport(trans, delay);
 
-        wait(delay);
+		quantumKeeper.set(delay); // Anotate the time of the target
+		// quantumKeeper.inc(sc_time(10,SC_NS)); // Consume computation time
+
+		if(quantumKeeper.need_sync())
+		{
+			quantumKeeper.sync();
+		}
     }
 
     // End Simulation because there are no events.
